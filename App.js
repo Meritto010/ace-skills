@@ -33,8 +33,6 @@ import VocabularyScreen from './screens/VocabularyScreen';
 
 import SettingsScreen from './screens/SettingsScreen';
 
-import LegalScreen from './screens/LegalScreen';
-
 /* =========================
    STACK
 ========================= */
@@ -83,59 +81,36 @@ function MainAppNavigator() {
         component={SettingsScreen}
       />
 
-      <Stack.Screen
-        name="Legal"
-        component={LegalScreen}
-      />
-
     </Stack.Navigator>
   );
 }
 
 /* =========================
-   ROOT APP
+   ROOT NAVIGATION ENTRY
 ========================= */
 
 export default function App() {
-
   const [loading, setLoading] = useState(true);
-
-  const [initialRoute, setInitialRoute] =
-    useState('Activation');
+  const [initialRoute, setInitialRoute] = useState('Activation');
 
   useEffect(() => {
-    checkActivation();
+    checkActivationStatus();
   }, []);
 
-  /* =========================
-     CHECK LICENSE STATUS
-  ========================= */
-
-  const checkActivation = async () => {
-
+  const checkActivationStatus = async () => {
     try {
+      const isActivated = await AsyncStorage.getItem('@is_activated');
 
-      const activated =
-        await AsyncStorage.getItem('@is_activated');
-
-      if (activated === 'true') {
-
+      if (isActivated === 'true') {
         setInitialRoute('MainApp');
-
       } else {
-
         setInitialRoute('Activation');
-
       }
 
     } catch (e) {
-
       setInitialRoute('Activation');
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
@@ -144,9 +119,7 @@ export default function App() {
   ========================= */
 
   if (loading) {
-
     return (
-
       <View
         style={{
           flex: 1,
@@ -179,7 +152,6 @@ export default function App() {
   ========================= */
 
   return (
-
     <NavigationContainer>
 
       <StatusBar

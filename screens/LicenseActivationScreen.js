@@ -118,13 +118,17 @@ export default function LicenseActivationScreen({ navigation }) {
             <Text style={styles.tagline}>Master Skills | Build Confidence</Text>
           </View>
 
-          <View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featureStrip}>
-              <FeatureChip icon="mic-outline" iconColor="#F59E0B" title="Speaking Practice" />
-              <FeatureChip icon="book-outline" iconColor="#7C3AED" title="Grammar Skills" />
+          {/* 🌟 FIX: Shifted to a grid matrix wrapper layout instead of an infinite horizontal row to avoid stamped placement */}
+          <View style={styles.matrixWrapper}>
+            <View style={styles.fChipsContainer}>
+              {/* Row 1: Grammar & Speaking */}
+              <FeatureChip icon="book-outline" iconColor="#7C3AED" title="Grammar Mastery" />
+              <FeatureChip icon="mic-outline" iconColor="#F59E0B" title="Speaking Lab" />
+              
+              {/* Row 2: Word Power & Career Readiness */}
               <FeatureChip icon="library-outline" iconColor="#2563EB" title="Word Power" />
               <FeatureChip icon="briefcase-outline" iconColor="#10B981" title="Career Readiness" />
-            </ScrollView>
+            </View>
           </View>
 
           <View style={styles.form}>
@@ -174,11 +178,12 @@ export default function LicenseActivationScreen({ navigation }) {
               <Text style={styles.skipText}>Explore Free Access</Text>
             </TouchableOpacity>
 
+            {/* 🌟 FIX: Updated Support design section without explicit display of the raw telephone digits */}
             <View style={styles.supportSection}>
-              <Text style={styles.supportHeading}>Get Support / License Enquiry</Text>
+              <Text style={styles.supportHeading}>GET SUPPORT</Text>
               <TouchableOpacity style={styles.supportRowPill} onPress={handleSupport} activeOpacity={0.85}>
                 <Ionicons name="logo-whatsapp" size={normalize(16)} color="#065F46" />
-                <Text style={styles.supportRowText}>Connect on WhatsApp (+91 9074887447)</Text>
+                <Text style={styles.supportRowText}>Chat with Support</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -190,29 +195,185 @@ export default function LicenseActivationScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
-  scrollContent: { paddingBottom: normalize(40) },
-  header: { alignItems: 'center', marginTop: normalize(25) },
-  logoBadge: { width: normalize(64), height: normalize(64), borderRadius: normalize(32), backgroundColor: ACE_BLUE, justifyContent: 'center', alignItems: 'center', elevation: 4, marginBottom: normalize(12) },
-  brandTitle: { fontSize: normalize(28), fontWeight: '900', color: ACE_BLUE, letterSpacing: 1 },
-  tagline: { fontSize: normalize(14), color: '#334155', fontWeight: '700', marginTop: normalize(4) },
-  featureStrip: { paddingHorizontal: normalize(24), paddingVertical: normalize(16) },
-  fChipCard: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: normalize(14), height: normalize(46), borderRadius: normalize(12), marginRight: normalize(10), backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', elevation: 1 },
-  iconCircle: { width: normalize(26), height: normalize(26), borderRadius: normalize(13), justifyContent: 'center', alignItems: 'center', marginRight: normalize(8) },
-  fText: { fontSize: normalize(12), fontWeight: '800', color: '#1E293B' },
-  form: { paddingHorizontal: normalize(24) },
-  label: { fontSize: normalize(11), fontWeight: '800', color: '#334155', marginBottom: normalize(6) },
-  input: { height: normalize(52), backgroundColor: '#F8FAFC', borderRadius: normalize(12), borderWidth: 1.5, borderColor: '#DCE3EA', paddingHorizontal: normalize(14), fontSize: normalize(14), color: '#0F172A', marginBottom: normalize(14), fontWeight: '600' },
-  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: normalize(20) },
-  termsRow: { flexDirection: 'row', flexWrap: 'wrap', marginLeft: normalize(8), flex: 1, alignItems: 'center' },
-  checkboxText: { fontSize: normalize(12), color: '#475569', fontWeight: '600' },
-  linkText: { fontSize: normalize(12), color: ACE_BLUE, fontWeight: '800', textDecorationLine: 'underline' },
-  btnActivate: { backgroundColor: ACE_BLUE, height: normalize(54), borderRadius: normalize(14), justifyContent: 'center', alignItems: 'center', flexDirection: 'row', elevation: 3 },
-  btnText: { color: '#FFFFFF', fontSize: normalize(15), fontWeight: '900' },
-  btnSkip: { marginTop: normalize(16), alignItems: 'center', paddingVertical: normalize(4) },
-  skipText: { color: ACE_BLUE, fontSize: normalize(14), fontWeight: '800', textDecorationLine: 'underline' },
-  supportSection: { marginTop: normalize(24), alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: normalize(16) },
-  supportHeading: { fontSize: normalize(11), fontWeight: '800', color: '#64748B', marginBottom: normalize(8) },
-  supportRowPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#DCFCE7', paddingHorizontal: normalize(16), paddingVertical: normalize(12), borderRadius: normalize(12), borderWidth: 1, borderColor: '#86EFAC', width: '100%', justifyContent: 'center' },
-  supportRowText: { marginLeft: normalize(8), fontSize: normalize(12), fontWeight: '800', color: '#065F46' },
+  // 🌟 FIX: Added responsive dynamic padding mapping calculated natively to push below edge statuses safely
+  container: { 
+    flex: 1, 
+    backgroundColor: '#FFFFFF',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + normalize(16) : normalize(16)
+  },
+  scrollContent: { 
+    paddingBottom: normalize(40) 
+  },
+  // 🌟 FIX: Expanded spacing margins to decouple elements safely
+  header: { 
+    alignItems: 'center', 
+    marginTop: normalize(15),
+    marginBottom: normalize(28)
+  },
+  logoBadge: { 
+    width: normalize(64), 
+    height: normalize(64), 
+    borderRadius: normalize(32), 
+    backgroundColor: ACE_BLUE, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    elevation: 4, 
+    marginBottom: normalize(14) 
+  },
+  brandTitle: { 
+    fontSize: normalize(26), 
+    fontWeight: '900', 
+    color: ACE_BLUE, 
+    letterSpacing: 1.5 
+  },
+  tagline: { 
+    fontSize: normalize(13), 
+    color: '#475569', 
+    fontWeight: '700', 
+    marginTop: normalize(4) 
+  },
+  // 🌟 FIX: Transformed layout to premium symmetric display structures
+  matrixWrapper: {
+    paddingHorizontal: normalize(24),
+    marginBottom: normalize(26)
+  },
+  fChipsContainer: { 
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between'
+  },
+  fChipCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: normalize(12), 
+    height: normalize(48), 
+    borderRadius: normalize(14), 
+    width: '48.5%',
+    backgroundColor: '#F8FAFC', 
+    borderWidth: 1, 
+    borderColor: '#E2E8F0',
+    marginBottom: normalize(10)
+  },
+  iconCircle: { 
+    width: normalize(28), 
+    height: normalize(28), 
+    borderRadius: normalize(14), 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: normalize(8) 
+  },
+  fText: { 
+    fontSize: normalize(11), 
+    fontWeight: '800', 
+    color: '#1E293B',
+    flex: 1
+  },
+  form: { 
+    paddingHorizontal: normalize(24) 
+  },
+  label: { 
+    fontSize: normalize(11), 
+    fontWeight: '800', 
+    color: '#475569', 
+    marginBottom: normalize(6),
+    letterSpacing: 0.5
+  },
+  input: { 
+    height: normalize(52), 
+    backgroundColor: '#F8FAFC', 
+    borderRadius: normalize(12), 
+    borderWidth: 1.5, 
+    borderColor: '#E2E8F0', 
+    paddingHorizontal: normalize(14), 
+    fontSize: normalize(14), 
+    color: '#0F172A', 
+    marginBottom: normalize(16), 
+    fontWeight: '600' 
+  },
+  checkboxContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: normalize(24),
+    marginTop: normalize(4)
+  },
+  termsRow: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    marginLeft: normalize(8), 
+    flex: 1, 
+    alignItems: 'center' 
+  },
+  checkboxText: { 
+    fontSize: normalize(12), 
+    color: '#475569', 
+    fontWeight: '600' 
+  },
+  linkText: { 
+    fontSize: normalize(12), 
+    color: ACE_BLUE, 
+    fontWeight: '800', 
+    textDecorationLine: 'underline' 
+  },
+  btnActivate: { 
+    backgroundColor: ACE_BLUE, 
+    height: normalize(54), 
+    borderRadius: normalize(14), 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    flexDirection: 'row', 
+    elevation: 2,
+    shadowColor: ACE_BLUE,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5
+  },
+  btnText: { 
+    color: '#FFFFFF', 
+    fontSize: normalize(15), 
+    fontWeight: '900' 
+  },
+  btnSkip: { 
+    marginTop: normalize(18), 
+    alignItems: 'center', 
+    paddingVertical: normalize(6) 
+  },
+  skipText: { 
+    color: ACE_BLUE, 
+    fontSize: normalize(13), 
+    fontWeight: '800', 
+    textDecorationLine: 'underline' 
+  },
+  // 🌟 FIX: Expanded spacing separation height
+  supportSection: { 
+    marginTop: normalize(32), 
+    alignItems: 'center', 
+    borderTopWidth: 1, 
+    borderTopColor: '#F1F5F9', 
+    paddingTop: normalize(20) 
+  },
+  supportHeading: { 
+    fontSize: normalize(10), 
+    fontWeight: '800', 
+    color: '#94A3B8', 
+    marginBottom: normalize(10),
+    letterSpacing: 0.8
+  },
+  supportRowPill: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#DCFCE7', 
+    paddingHorizontal: normalize(16), 
+    paddingVertical: normalize(12), 
+    borderRadius: normalize(14), 
+    borderWidth: 1, 
+    borderColor: '#86EFAC', 
+    width: '100%', 
+    justifyContent: 'center' 
+  },
+  supportRowText: { 
+    marginLeft: normalize(6), 
+    fontSize: normalize(13), 
+    fontWeight: '800', 
+    color: '#065F46' 
+  },
 });
