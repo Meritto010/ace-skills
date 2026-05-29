@@ -24,6 +24,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "30ffd57d-1ccb-4629-99a3-ce91f9baa1c9"
+      }
+    },
+    "owner": "cbi"
   }
 }
