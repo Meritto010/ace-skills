@@ -23,28 +23,30 @@ export default function SpeakingScreen() {
     }
   };
 
-  // 🔒 PREMIUM BLOCK (ONLY ADDITION)
+  // 🔒 PREMIUM FALLBACK SAFETY GATE (FIXED TARGET ROUTE)
   if (!isPro) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0F172A' }}>
-        <Ionicons name="lock-closed" size={50} color="#FFF" />
-
-        <Text style={{ fontSize: 18, fontWeight: '800', marginTop: 10, color: '#FFF' }}>
-          Premium Locked
+        <Ionicons name="lock-closed" size={50} color="#0F4C81" />
+        <Text style={{ fontSize: 18, fontWeight: '800', marginTop: 12, color: '#FFFFFF' }}>
+          Feature Locked 🔒
         </Text>
-
+        <Text style={{ fontSize: 13, color: '#94A3B8', fontWeight: '600', marginTop: 4, textAlign: 'center', paddingHorizontal: 40 }}>
+          This module requires an active license key to process content.
+        </Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('LicenseActivation')}
+          onPress={() => navigation.navigate('Activation')} // Fixed matching App.js key name
           style={{
-            marginTop: 20,
+            marginTop: 22,
             backgroundColor: '#0F4C81',
-            paddingHorizontal: 18,
-            paddingVertical: 10,
-            borderRadius: 10
+            paddingHorizontal: 24,
+            paddingVertical: 12,
+            borderRadius: 12,
+            elevation: 2
           }}
         >
-          <Text style={{ color: '#FFF', fontWeight: '800' }}>
-            Unlock
+          <Text style={{ color: '#FFF', fontWeight: '800', fontSize: 14 }}>
+            Activate Premium
           </Text>
         </TouchableOpacity>
       </View>
@@ -53,14 +55,15 @@ export default function SpeakingScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-      
+      <StatusBar barStyle="light-content" />
       <View style={styles.header}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Dashboard')}>
-          <Ionicons name="grid-outline" size={24} color="#FFF" />
-          <Text style={styles.navText}>Dashboard</Text>
+        {/* FIXED: Swapped out loop navigation for clean navigation stack drop back */}
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Text style={styles.navText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Speaking Lab</Text>
+        <View style={{ width: 60 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -85,8 +88,8 @@ const styles = StyleSheet.create({
   navButton: { flexDirection: 'row', alignItems: 'center' },
   navText: { color: '#FFF', fontWeight: '800', marginLeft: 8, fontSize: 14 },
   headerTitle: { color: '#FFF', fontWeight: '900', fontSize: 18 },
-  scrollContent: { paddingBottom: 40 },
-  introSection: { padding: 25 },
-  welcomeText: { fontSize: 32, fontWeight: '900', color: '#FFF' },
-  subText: { fontSize: 16, color: '#94A3B8', marginTop: 8, lineHeight: 24 }
+  scrollContent: { paddingBottom: 30 },
+  introSection: { padding: 20 },
+  welcomeText: { color: '#FFF', fontSize: 22, fontWeight: '900' },
+  subText: { color: '#94A3B8', fontSize: 14, fontWeight: '600', marginTop: 6, lineHeight: 20 },
 });

@@ -27,28 +27,30 @@ export default function GrammarScreen({ navigation }) {
     }
   };
 
-  // 🔒 PREMIUM BLOCK (ONLY ADDITION)
+  // 🔒 PREMIUM FALLBACK SAFETY GATE (FIXED TARGET ROUTE)
   if (!isPro) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
         <Ionicons name="lock-closed" size={50} color="#0F4C81" />
-
-        <Text style={{ fontSize: 18, fontWeight: '800', marginTop: 10, color: '#1E293B' }}>
-          Premium Locked
+        <Text style={{ fontSize: 18, fontWeight: '800', marginTop: 12, color: '#1E293B' }}>
+          Feature Locked 🔒
         </Text>
-
+        <Text style={{ fontSize: 13, color: '#64748B', fontWeight: '600', marginTop: 4, textAlign: 'center', paddingHorizontal: 40 }}>
+          This module requires an active license key to process content.
+        </Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('LicenseActivation')}
+          onPress={() => navigation.navigate('Activation')} // Fixed matching App.js key name
           style={{
-            marginTop: 20,
+            marginTop: 22,
             backgroundColor: '#0F4C81',
-            paddingHorizontal: 18,
-            paddingVertical: 10,
-            borderRadius: 10
+            paddingHorizontal: 24,
+            paddingVertical: 12,
+            borderRadius: 12,
+            elevation: 2
           }}
         >
-          <Text style={{ color: '#FFF', fontWeight: '800' }}>
-            Unlock
+          <Text style={{ color: '#FFF', fontWeight: '800', fontSize: 14 }}>
+            Activate Premium
           </Text>
         </TouchableOpacity>
       </View>
@@ -85,16 +87,18 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
   },
-  backButton: { marginRight: 16 },
-  headerTitle: { fontWeight: '700', color: '#1E293B' },
-  content: { flex: 1 }
+  backButton: {
+    marginRight: 14,
+  },
+  headerTitle: { 
+    fontWeight: '900', 
+    color: '#1E293B',
+  },
+  content: { 
+    flex: 1,
+  },
 });
