@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Ace Skills",
-    "slug": "ace-skills",
+    "slug": "snack-8c95f0f6-f0c9-4419-8a5c-2e6d78a77264",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,7 +21,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ace.skills"
+      "package": "com.cbi.snack8c95f0f6f0c944198a5c2e6d78a77264"
     },
     "web": {
       "favicon": "./assets/favicon.png"
