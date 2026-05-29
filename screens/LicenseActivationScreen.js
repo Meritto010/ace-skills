@@ -34,8 +34,11 @@ export default function LicenseActivationScreen({ navigation }) {
   const [licenseKey, setLicenseKey] = useState('');
   const [agreed, setAgreed] = useState(false);
 
-  const PRIVACY_URL = 'https://example.com/privacy';
-  const TERMS_URL = 'https://example.com/terms';
+  const PRIVACY_URL =
+    'https://gist.githubusercontent.com/Meritto010/106fe9eed279743481b47dd0dc548bfe/raw/024f52e035c0860b37473e5bc7e32606023a1ea6/privacy-policy.md';
+
+  const TERMS_URL =
+    'https://gist.githubusercontent.com/Meritto010/8f44e03d9d4d8c5eb0033d2e12f50900/raw/c71e80fab781e7336b62284beb13d8870bb99b2c/terms-of-service.md';
 
   const openLink = (url) => {
     Linking.openURL(url).catch(() =>
@@ -43,9 +46,6 @@ export default function LicenseActivationScreen({ navigation }) {
     );
   };
 
-  /* =========================
-     SUPPORT
-========================= */
   const openSupportDesk = () => {
     const phone = '919074887447';
     const msg =
@@ -57,29 +57,55 @@ export default function LicenseActivationScreen({ navigation }) {
   };
 
   /* =========================
+     KEY VALIDATION
+     XXX-XXXX-XXXX
+========================= */
+  const isValidKey = (key) => {
+    return /^[A-Z0-9]{3}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(key);
+  };
+
+  /* =========================
      ACTIVATE
 ========================= */
   const handleActivation = async () => {
-    if (!name.trim()) {
-      Alert.alert('Enter Name');
-      return;
-    }
-
-    if (!licenseKey.trim()) {
-      Alert.alert('Enter License Key');
-      return;
-    }
-
-    if (!agreed) {
-      Alert.alert('Please accept terms');
-      return;
-    }
-
     try {
-      await AsyncStorage.setItem('@is_activated', 'true');
-      await AsyncStorage.setItem('@activated_license', licenseKey);
-      await AsyncStorage.setItem('@user_name', name);
+      const cleanKey = licenseKey.trim().toUpperCase();
 
+      if (!name.trim()) {
+        Alert.alert('Enter Name');
+        return;
+      }
+
+      if (!cleanKey) {
+        Alert.alert('Enter License Key');
+        return;
+      }
+
+      if (!isValidKey(cleanKey)) {
+        Alert.alert(
+          'Invalid Key',
+          'Use format XXX-XXXX-XXXX'
+        );
+        return;
+      }
+
+      if (!agreed) {
+        Alert.alert('Please accept terms');
+        return;
+      }
+
+      // store activation
+      await AsyncStorage.setItem('@is_activated', 'true');
+      await AsyncStorage.setItem('@activated_license', cleanKey);
+      await AsyncStorage.setItem('@user_name', name.trim());
+
+      // default track if missing
+      const existingTrack = await AsyncStorage.getItem('@user_focus_track');
+      if (!existingTrack) {
+        await AsyncStorage.setItem('@user_focus_track', 'communication');
+      }
+
+      // IMPORTANT FIX: correct navigation reset
       navigation.reset({
         index: 0,
         routes: [{ name: 'Dashboard' }]
@@ -91,15 +117,25 @@ export default function LicenseActivationScreen({ navigation }) {
   };
 
   /* =========================
-     FREE MODE
+     FREE MODE FIXED
 ========================= */
   const freeMode = async () => {
-    await AsyncStorage.setItem('@is_activated', 'false');
+    try {
+      await AsyncStorage.setItem('@is_activated', 'false');
 
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Dashboard' }]
-    });
+      const existingTrack = await AsyncStorage.getItem('@user_focus_track');
+      if (!existingTrack) {
+        await AsyncStorage.setItem('@user_focus_track', 'communication');
+      }
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Dashboard' }]
+      });
+
+    } catch (e) {
+      Alert.alert('Error', 'Unable to continue');
+    }
   };
 
   return (
@@ -112,7 +148,7 @@ export default function LicenseActivationScreen({ navigation }) {
       >
         <ScrollView contentContainerStyle={styles.content}>
 
-          {/* BRAND */}
+          {/* HEADER */}
           <View style={styles.header}>
             <Text style={styles.title}>ACE</Text>
             <Text style={styles.tagline}>
@@ -121,11 +157,7 @@ export default function LicenseActivationScreen({ navigation }) {
           </View>
 
           {/* PILLS */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.pillRow}
-          >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
             <FeatureChip icon="mic-outline" iconColor="#F59E0B" title="Speaking" />
             <FeatureChip icon="book-outline" iconColor="#7C3AED" title="Grammar" />
             <FeatureChip icon="library-outline" iconColor="#2563EB" title="Vocabulary" />
@@ -133,7 +165,6 @@ export default function LicenseActivationScreen({ navigation }) {
 
           {/* FORM */}
           <View style={styles.card}>
-
             <Text style={styles.label}>NAME</Text>
             <TextInput
               style={styles.input}
@@ -148,7 +179,7 @@ export default function LicenseActivationScreen({ navigation }) {
               style={styles.input}
               value={licenseKey}
               onChangeText={setLicenseKey}
-              placeholder="XXXX-XXXX"
+              placeholder="XXX-XXXX-XXXX"
               placeholderTextColor="#94A3B8"
               autoCapitalize="characters"
             />
@@ -168,37 +199,28 @@ export default function LicenseActivationScreen({ navigation }) {
               </Text>
             </View>
 
-            {/* ACTIVATE BUTTON */}
+            {/* ACTIVATE */}
             <TouchableOpacity
               style={styles.activateBtn}
               onPress={handleActivation}
             >
-              <Ionicons
-                name="shield-checkmark-outline"
-                size={18}
-                color="#FFF"
-                style={{ marginRight: 8 }}
-              />
+              <Ionicons name="shield-checkmark-outline" size={18} color="#FFF" style={{ marginRight: 8 }} />
               <Text style={styles.activateText}>Activate</Text>
             </TouchableOpacity>
 
-            {/* FREE MODE */}
+            {/* FREE */}
             <TouchableOpacity onPress={freeMode}>
               <Text style={styles.freeText}>
                 Continue without activation
               </Text>
             </TouchableOpacity>
-
           </View>
 
         </ScrollView>
 
         {/* SUPPORT */}
         <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.support}
-            onPress={openSupportDesk}
-          >
+          <TouchableOpacity style={styles.support} onPress={openSupportDesk}>
             <Ionicons name="logo-whatsapp" size={18} color="#25D366" />
             <Text style={styles.supportText}>Support Desk</Text>
           </TouchableOpacity>
@@ -210,40 +232,15 @@ export default function LicenseActivationScreen({ navigation }) {
 }
 
 /* =========================
-   STYLES
+   STYLES (UNCHANGED)
 ========================= */
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff'
-  },
-
-  content: {
-    paddingBottom: 120
-  },
-
-  header: {
-    alignItems: 'center',
-    marginTop: 40
-  },
-
-  title: {
-    fontSize: 34,
-    fontWeight: '900',
-    color: ACE_BLUE
-  },
-
-  tagline: {
-    fontSize: 13,
-    color: '#64748B',
-    marginTop: 4
-  },
-
-  pillRow: {
-    paddingHorizontal: 20,
-    marginTop: 25
-  },
-
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { paddingBottom: 120 },
+  header: { alignItems: 'center', marginTop: 40 },
+  title: { fontSize: 34, fontWeight: '900', color: ACE_BLUE },
+  tagline: { fontSize: 13, color: '#64748B', marginTop: 4 },
+  pillRow: { paddingHorizontal: 20, marginTop: 25 },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -255,26 +252,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10
   },
-
-  chipText: {
-    marginLeft: 6,
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#334155'
-  },
-
-  card: {
-    marginTop: 25,
-    marginHorizontal: 20
-  },
-
-  label: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#94A3B8',
-    marginBottom: 6
-  },
-
+  chipText: { marginLeft: 6, fontSize: 12, fontWeight: '700', color: '#334155' },
+  card: { marginTop: 25, marginHorizontal: 20 },
+  label: { fontSize: 11, fontWeight: '800', color: '#94A3B8', marginBottom: 6 },
   input: {
     height: 55,
     borderWidth: 1,
@@ -284,19 +264,8 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     backgroundColor: '#F8FAFC'
   },
-
-  consent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20
-  },
-
-  consentText: {
-    marginLeft: 8,
-    fontSize: 12,
-    color: '#64748B'
-  },
-
+  consent: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+  consentText: { marginLeft: 8, fontSize: 12, color: '#64748B' },
   activateBtn: {
     backgroundColor: ACE_BLUE,
     height: 55,
@@ -305,26 +274,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row'
   },
-
-  activateText: {
-    color: '#fff',
-    fontWeight: '800'
-  },
-
-  freeText: {
-    textAlign: 'center',
-    marginTop: 15,
-    color: '#64748B',
-    fontWeight: '700'
-  },
-
+  activateText: { color: '#fff', fontWeight: '800' },
+  freeText: { textAlign: 'center', marginTop: 15, color: '#64748B', fontWeight: '700' },
   footer: {
     position: 'absolute',
     bottom: 20,
     width: '100%',
     alignItems: 'center'
   },
-
   support: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -335,10 +292,5 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
     backgroundColor: '#fff'
   },
-
-  supportText: {
-    marginLeft: 6,
-    fontWeight: '800',
-    color: '#1E293B'
-  }
+  supportText: { marginLeft: 6, fontWeight: '800', color: '#1E293B' }
 });
