@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  View, Text, ScrollView, TouchableOpacity, FlatList, 
-  ActivityIndicator, StyleSheet, LayoutAnimation, Platform, UIManager 
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, FlatList, ActivityIndicator, StyleSheet, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -10,6 +7,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 const GITHUB_VOCAB_URL = "https://raw.githubusercontent.com/Meritto010/vocabulary-data/refs/heads/main/vocab.json";
+const PILL_CATEGORIES = ["Social", "Workplace", "Idioms", "Soft Skills", "Industry Skills", "Entrepreneurship"];
 
 export default function VocabularyWidget() {
   const [data, setData] = useState([]);
@@ -30,13 +28,24 @@ export default function VocabularyWidget() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.filterBarContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+          {PILL_CATEGORIES.map(pill => (
+            <TouchableOpacity key={pill} onPress={() => { LayoutAnimation.easeInEaseOut(); setActiveCategory(pill); }} 
+              style={[styles.pillButton, activeCategory === pill && styles.pillButtonActive]}>
+              <Text style={[styles.pillText, activeCategory === pill && styles.pillTextActive]}>{pill}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
       <FlatList 
         data={displayData}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.scrollViewport}
         renderItem={({ item }) => (
           <View style={styles.accordionCard}>
-            <TouchableOpacity onPress={() => setExpandedId(expandedId === item.id ? null : item.id)} style={styles.cardHeader}>
+            <TouchableOpacity onPress={() => { LayoutAnimation.easeInEaseOut(); setExpandedId(expandedId === item.id ? null : item.id); }} style={styles.cardHeader}>
               <Text style={styles.termTitle}>{item.term}</Text>
               <Ionicons name={expandedId === item.id ? "chevron-up" : "chevron-down"} size={20} color="#64748B" />
             </TouchableOpacity>
@@ -53,12 +62,18 @@ export default function VocabularyWidget() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC', marginTop: 10 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scrollViewport: { padding: 16, paddingBottom: 150 }, // Added bottom padding to avoid hitting FAB
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  filterBarContainer: { backgroundColor: '#FFF', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#E2E8F0' },
+  filterScroll: { paddingHorizontal: 16 },
+  pillButton: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 8, borderRadius: 20, backgroundColor: '#F1F5F9' },
+  pillButtonActive: { backgroundColor: '#0F4C81' },
+  pillText: { fontSize: 13, fontWeight: '700', color: '#64748B' },
+  pillTextActive: { color: '#FFF' },
+  scrollViewport: { padding: 16, paddingBottom: 150 },
   accordionCard: { backgroundColor: '#FFF', borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: '#E2E8F0' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 16 },
   termTitle: { fontSize: 16, fontWeight: '700' },
   cardExpandedArea: { padding: 16, backgroundColor: '#FAFAFA' },
-  descriptionBody: { fontSize: 14, color: '#334155' }
+  descriptionBody: { fontSize: 14, color: '#334155' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' }
 });
