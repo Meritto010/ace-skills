@@ -1,51 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, SafeAreaView, StyleSheet, StatusBar, Platform } from 'react-native';
+import { View, TouchableOpacity, Text, SafeAreaView, StyleSheet, StatusBar, Platform, TextInput, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../services/supabase'; // Ensure this points to your supabase.js
 import VocabularyWidget from '../widgets/VocabularyWidget';
 
 export default function VocabularyScreen({ navigation }) {
-
   const [isPro, setIsPro] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+  const [courseList, setCourseList] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState('SAP Material Management (MM)');
 
   useEffect(() => {
     checkLicense();
+    // Fetch course list from your separate courses repo
+    fetch('https://raw.githubusercontent.com/Meritto010/courses/main/courses.json')
+      .then(res => res.json())
+      .then(data => setCourseList(data.courses))
+      .catch(err => console.error("Courses load error:", err));
   }, []);
 
   const checkLicense = async () => {
-    try {
-      const status = await AsyncStorage.getItem('@is_activated');
-      setIsPro(status === 'true');
-    } catch (e) {
-      setIsPro(false);
+    const status = await AsyncStorage.getItem('@is_activated');
+    setIsPro(status === 'true');
+  };
+
+  const submitInquiry = async () => {
+    if (!userName || !userPhone) return Alert.alert("Required", "Please fill all fields.");
+
+    const { error } = await supabase.from('inquiries').insert([{
+      name: userName,
+      phone: userPhone,
+      course: selectedCourse
+    }]);
+
+    if (error) {
+      Alert.alert("Submission Failed", "Please try again.");
+    } else {
+      Alert.alert("Success", "Inquiry sent!");
+      setModalVisible(false);
     }
   };
 
-  //  PREMIUM FALLBACK SAFETY GATE (FIXED TARGET ROUTE)
   if (!isPro) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+      <View style={styles.center}>
         <Ionicons name="lock-closed" size={50} color="#0F4C81" />
-        <Text style={{ fontSize: 18, fontWeight: '800', marginTop: 12, color: '#1E293B' }}>
-          Feature Locked 
-        </Text>
-        <Text style={{ fontSize: 13, color: '#64748B', fontWeight: '600', marginTop: 4, textAlign: 'center', paddingHorizontal: 40 }}>
-          This module requires an active license key to process content.
-        </Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Activation')} // Fixed matching App.js key name
-          style={{
-            marginTop: 22,
-            backgroundColor: '#0F4C81',
-            paddingHorizontal: 24,
-            paddingVertical: 12,
-            borderRadius: 12,
-            elevation: 2
-          }}
-        >
-          <Text style={{ color: '#FFF', fontWeight: '800', fontSize: 14 }}>
-            Activate Premium
-          </Text>
+        <Text style={styles.lockedText}>Feature Locked</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Activation')} style={styles.btn}>
+          <Text style={{ color: '#FFF' }}>Activate Premium</Text>
         </TouchableOpacity>
       </View>
     );
@@ -53,52 +58,44 @@ export default function VocabularyScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
-      
-      {/*  SAFE SPACED TOP HEADER SECTION */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1E293B" />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}><Ionicons name="arrow-back" size={24} /></TouchableOpacity>
         <Text style={styles.headerTitle}>Professional Expressions</Text>
       </View>
       
-      <View style={styles.contentContainer}>
-        <VocabularyWidget />
-      </View>
+      <VocabularyWidget />
+      
+      {/* Floating Action Button to trigger Inquiry Modal */}
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+        <Text style={{color: '#FFF', fontWeight: 'bold'}}>Inquire Course</Text>
+      </TouchableOpacity>
+
+      {/* Inquiry Modal */}
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.title}>Inquire for Course</Text>
+            <TextInput placeholder="Name" style={styles.input} value={userName} onChangeText={setUserName} />
+            <TextInput placeholder="Mobile" style={styles.input} value={userPhone} onChangeText={setUserPhone} keyboardType="phone-pad" />
+            <TouchableOpacity style={styles.submitBtn} onPress={submitInquiry}>
+              <Text style={{color: '#FFF'}}>Submit Inbound Inquiry</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalVisible(false)}><Text>Cancel</Text></TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { 
-    flex: 1, 
-    backgroundColor: '#F8FAFC' 
-  },
-  //  FIX: Balanced Header alignment pushing content natively below status bar layer
-  header: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 12 : 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
-  },
-  backButton: {
-    marginRight: 14,
-    padding: 2, // Slightly increased tap target profile safely
-  },
-  headerTitle: { 
-    fontSize: 18,
-    fontWeight: '900', 
-    color: '#1E293B',
-  },
-  //  FIX: Balanced outer framing layout container for internal widgets 
-  contentContainer: { 
-    flex: 1,
-    paddingHorizontal: 4, // Prevents content listings from clipping on rounded screen glass corners
-    paddingBottom: 12     // Balance layout spacing at base framework level
-  }
+  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 20, backgroundColor: '#FFF' },
+  headerTitle: { fontSize: 18, fontWeight: '900', marginLeft: 14 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  input: { borderWidth: 1, borderColor: '#DDD', padding: 10, marginVertical: 10, borderRadius: 8 },
+  modalOverlay: { flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 },
+  modalContent: { backgroundColor: '#FFF', padding: 20, borderRadius: 15 },
+  submitBtn: { backgroundColor: '#0F4C81', padding: 15, borderRadius: 8, alignItems: 'center' },
+  fab: { position: 'absolute', bottom: 30, right: 30, backgroundColor: '#0F4C81', padding: 15, borderRadius: 30 }
 });
