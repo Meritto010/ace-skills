@@ -8,7 +8,6 @@ import {
   ScrollView,
   StatusBar,
   Platform,
-  Linking,
   Alert,
   Dimensions,
   ActivityIndicator
@@ -36,6 +35,43 @@ export default function DashboardScreen() {
     fetchStreams();
   }, []);
 
+  const handleStreamPress = async (item) => {
+    const activated = await AsyncStorage.getItem('@is_activated');
+    const isUserPro = activated === 'true';
+
+    // 1. Grammar Logic: Freemium (Free/Pro URL from GitHub JSON)
+    if (item.id === 'grammar') {
+      const targetUrl = isUserPro ? item.proUrl : item.freeUrl;
+      navigation.navigate('WebScreen', { url: targetUrl });
+    } 
+    // 2. Premium-Only Logic: Speaking & Vocabulary
+    else if (item.id === 'speaking' || item.id === 'vocabulary') {
+      if (isUserPro) {
+        navigation.navigate(item.id === 'speaking' ? 'Speaking' : 'Vocabulary');
+      } else {
+        Alert.alert(
+          'Premium Access Required',
+          'This module is part of the ACE Premium curriculum. Activate your license to unlock.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Activate', 
+              onPress: () => navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'Activation' }] })) 
+            }
+          ]
+        );
+      }
+    } 
+    // 3. Default/Internal Routing
+    else if (item.targetUrl && item.targetUrl.startsWith('internal://')) {
+      const screenName = item.targetUrl.replace('internal://', '');
+      navigation.navigate(screenName);
+    } 
+    else if (item.targetUrl) {
+      navigation.navigate('WebScreen', { url: item.targetUrl });
+    }
+  };
+
   const loadFocusTrack = async () => {
     try {
       const savedTrack = await AsyncStorage.getItem('@user_focus_track');
@@ -51,11 +87,7 @@ export default function DashboardScreen() {
   const loadLicenseStatus = async () => {
     try {
       const activated = await AsyncStorage.getItem('@is_activated');
-      if (activated === 'true') {
-        setIsPro(true);
-      } else {
-        setIsPro(false);
-      }
+      setIsPro(activated === 'true');
     } catch (e) {
       setIsPro(false);
     }
@@ -78,20 +110,13 @@ export default function DashboardScreen() {
       navigation.navigate(screenName);
     } else {
       Alert.alert(
-        'Feature Locked 🔒',
-        'This module requires an active premium license. Would you like to activate premium now?',
+        'Feature Locked',
+        'This module requires an active premium license.',
         [
           { text: 'Cancel', style: 'cancel' },
           { 
             text: 'Activate License', 
-            onPress: () => {
-              navigation.dispatch(
-                CommonActions.reset({
-                  index: 0,
-                  routes: [{ name: 'Activation' }],
-                })
-              );
-            }
+            onPress: () => navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'Activation' }] }))
           }
         ]
       );
@@ -99,11 +124,7 @@ export default function DashboardScreen() {
   };
 
   const SkillButton = ({ title, icon, screen }) => (
-    <TouchableOpacity
-      style={styles.skillCard}
-      activeOpacity={0.85}
-      onPress={() => handleRouteNavigation(screen)}
-    >
+    <TouchableOpacity style={styles.skillCard} activeOpacity={0.85} onPress={() => handleRouteNavigation(screen)}>
       <View style={styles.skillIconWrap}>
         <Ionicons name={icon} size={22} color={ACE_BLUE} />
       </View>
@@ -120,8 +141,6 @@ export default function DashboardScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        
-        {/* Header Row */}
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.brandTitle}>ACE</Text>
@@ -132,7 +151,6 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Current Focus Track Card */}
         <View style={styles.focusCard}>
           <View style={styles.focusLeft}>
             <View style={styles.focusIconWrap}>
@@ -145,7 +163,6 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Skills Grid Section */}
         <View style={styles.sectionBlock}>
           <Text style={styles.sectionLabel}>CORE SKILLS</Text>
           <View style={styles.skillsRow}>
@@ -155,7 +172,6 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Dynamic Media Streams */}
         {loading ? (
           <ActivityIndicator size="large" color={ACE_BLUE} style={{ marginTop: 40 }} />
         ) : (
@@ -168,7 +184,7 @@ export default function DashboardScreen() {
                     key={item.id} 
                     activeOpacity={0.85} 
                     style={[styles.streamCard, { backgroundColor: item.accentBg || '#F8FAFC' }]}
-                    onPress={() => Linking.openURL(item.targetUrl).catch(() => Alert.alert('Error', 'Invalid link.'))}
+                    onPress={() => handleStreamPress(item)} 
                   >
                     <View style={styles.streamTop}>
                       <View style={styles.streamIconCircle}>
@@ -189,12 +205,10 @@ export default function DashboardScreen() {
           ))
         )}
 
-        {/* Support Button Footer */}
         <TouchableOpacity style={styles.supportBtn} activeOpacity={0.85} onPress={() => setSupportVisible(true)}>
           <Ionicons name="help-circle-outline" size={20} color="#FFF" />
           <Text style={styles.supportText}>Open Support Hub</Text>
         </TouchableOpacity>
-
       </ScrollView>
       <SupportHubModal visible={supportVisible} onClose={() => setSupportVisible(false)} isPro={isPro} />
     </SafeAreaView>
@@ -202,201 +216,32 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#FFFFFF' 
-  },
-  scrollContainer: { 
-    paddingHorizontal: 20, 
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 16 : 20, 
-    paddingBottom: 40 
-  },
-  headerRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center',
-    marginBottom: 4
-  },
-  brandTitle: { 
-    fontSize: 28, 
-    fontWeight: '900', 
-    color: ACE_BLUE,
-    letterSpacing: 0.5
-  },
-  brandTagline: { 
-    fontSize: 13, 
-    color: '#64748B', 
-    fontWeight: '700',
-    marginTop: 2
-  },
-  settingsBtn: { 
-    padding: 6,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0'
-  },
-  focusCard: { 
-    backgroundColor: '#F0F7FF', // Light corporate blue background tint
-    padding: 16, 
-    borderRadius: 16, 
-    marginTop: 24, 
-    borderWidth: 1, 
-    borderColor: '#D0E4FF' 
-  },
-  focusLeft: { 
-    flexDirection: 'row', 
-    alignItems: 'center' 
-  },
-  focusIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D0E4FF'
-  },
-  focusLabel: { 
-    fontSize: 10, 
-    fontWeight: '800', 
-    color: '#475569', 
-    letterSpacing: 0.8 
-  },
-  focusTitle: { 
-    fontSize: 15, 
-    fontWeight: '800', 
-    color: '#0F4C81', // Highlight focus title using corporate identity color
-    marginTop: 2 
-  },
-  sectionBlock: { 
-    marginTop: 32 
-  },
-  sectionLabel: { 
-    fontSize: 11, 
-    fontWeight: '900', 
-    color: '#94A3B8', 
-    letterSpacing: 1.2, 
-    marginBottom: 14 
-  },
-  skillsRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between' 
-  },
-  skillCard: { 
-    backgroundColor: '#FFFFFF', 
-    width: (width - 64) / 3, // Balanced perfectly to fit edge limits smoothly
-    paddingVertical: 18, 
-    borderRadius: 16, 
-    alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#E2E8F0', 
-    position: 'relative', 
-    // Subtle design shadow for card elevation elevation
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2 
-  },
-  skillIconWrap: { 
-    width: 44, 
-    height: 44, 
-    borderRadius: 12, 
-    backgroundColor: '#F0F7FF', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginBottom: 10 
-  },
-  skillTitle: { 
-    fontSize: 12, 
-    fontWeight: '800', 
-    color: '#1E293B' 
-  },
-  lockBadge: { 
-    position: 'absolute', 
-    top: 8, 
-    right: 8, 
-    backgroundColor: '#FEF2F2', 
-    padding: 3, 
-    borderRadius: 6, 
-    borderWidth: 0.5, 
-    borderColor: '#FCA5A5' 
-  },
-  streamCard: { 
-    width: 144, 
-    height: 154, 
-    borderRadius: 16, 
-    padding: 14, 
-    marginRight: 12, 
-    justifyContent: 'space-between', 
-    borderWidth: 1, 
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1
-  },
-  horizontalScrollPadding: {
-    paddingRight: 8 
-  },
-  streamTop: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center' 
-  },
-  streamIconCircle: { 
-    width: 36, 
-    height: 36, 
-    borderRadius: 10, // Rounded-rect format looks more corporate than circles
-    backgroundColor: '#FFFFFF', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    borderWidth: 1,
-    borderColor: '#E2E8F0'
-  },
-  streamBottom: { 
-    marginTop: 8 
-  },
-  streamTitle: { 
-    fontSize: 13, 
-    fontWeight: '800', 
-    color: '#1E293B', 
-    lineHeight: 17, 
-    height: 34 
-  },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8
-  },
-  streamAction: { 
-    fontSize: 11, 
-    fontWeight: '900', 
-    color: ACE_BLUE, 
-    letterSpacing: 0.5,
-    marginRight: 4
-  },
-  supportBtn: { 
-    backgroundColor: ACE_BLUE, 
-    flexDirection: 'row', 
-    height: 54, 
-    borderRadius: 16, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginTop: 44, 
-    elevation: 2,
-    shadowColor: ACE_BLUE,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6
-  },
-  supportText: { 
-    color: '#FFFFFF', 
-    fontSize: 14, 
-    fontWeight: '800', 
-    marginLeft: 8 
-  }
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  scrollContainer: { paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 16 : 20, paddingBottom: 40 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  brandTitle: { fontSize: 28, fontWeight: '900', color: ACE_BLUE, letterSpacing: 0.5 },
+  brandTagline: { fontSize: 13, color: '#64748B', fontWeight: '700', marginTop: 2 },
+  settingsBtn: { padding: 6, backgroundColor: '#F8FAFC', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+  focusCard: { backgroundColor: '#F0F7FF', padding: 16, borderRadius: 16, marginTop: 24, borderWidth: 1, borderColor: '#D0E4FF' },
+  focusLeft: { flexDirection: 'row', alignItems: 'center' },
+  focusIconWrap: { width: 38, height: 38, borderRadius: 10, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#D0E4FF' },
+  focusLabel: { fontSize: 10, fontWeight: '800', color: '#475569', letterSpacing: 0.8 },
+  focusTitle: { fontSize: 15, fontWeight: '800', color: '#0F4C81', marginTop: 2 },
+  sectionBlock: { marginTop: 32 },
+  sectionLabel: { fontSize: 11, fontWeight: '900', color: '#94A3B8', letterSpacing: 1.2, marginBottom: 14 },
+  skillsRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  skillCard: { backgroundColor: '#FFFFFF', width: (width - 64) / 3, paddingVertical: 18, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0', position: 'relative', elevation: 2 },
+  skillIconWrap: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#F0F7FF', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
+  skillTitle: { fontSize: 12, fontWeight: '800', color: '#1E293B' },
+  lockBadge: { position: 'absolute', top: 8, right: 8, backgroundColor: '#FEF2F2', padding: 3, borderRadius: 6, borderWidth: 0.5, borderColor: '#FCA5A5' },
+  streamCard: { width: 144, height: 154, borderRadius: 16, padding: 14, marginRight: 12, justifyContent: 'space-between', borderWidth: 1, borderColor: '#E2E8F0', elevation: 1 },
+  horizontalScrollPadding: { paddingRight: 8 },
+  streamTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  streamIconCircle: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
+  streamBottom: { marginTop: 8 },
+  streamTitle: { fontSize: 13, fontWeight: '800', color: '#1E293B', lineHeight: 17, height: 34 },
+  actionRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
+  streamAction: { fontSize: 11, fontWeight: '900', color: ACE_BLUE, letterSpacing: 0.5, marginRight: 4 },
+  supportBtn: { backgroundColor: ACE_BLUE, flexDirection: 'row', height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginTop: 44, elevation: 2 },
+  supportText: { color: '#FFFFFF', fontSize: 14, fontWeight: '800', marginLeft: 8 }
 });
