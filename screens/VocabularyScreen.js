@@ -1,37 +1,36 @@
-import React from 'react';
-import { View, TouchableOpacity, Text, SafeAreaView, StyleSheet, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, SafeAreaView, StyleSheet, StatusBar, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import VocabularyWidget from '../widgets/VocabularyWidget';
 
 export default function VocabularyScreen({ navigation }) {
+  const [vocabData, setVocabData] = useState([]);
+
+  useEffect(() => {
+    fetch('https://raw.githubusercontent.com/Meritto010/vocabulary-data/refs/heads/main/vocab.json')
+      .then(res => res.json())
+      .then(setVocabData);
+  }, []);
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1E293B" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Professional Expressions</Text>
-      </View>
-      
-      <View style={{ flex: 1 }}>
-        <VocabularyWidget />
-      </View>
-    </SafeAreaView>
+    <View style={styles.screenWrapper}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Professional Expressions</Text>
+        </View>
+
+        <VocabularyWidget data={vocabData} />
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 16, 
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    elevation: 1
-  },
-  backButton: { marginRight: 16 },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#1E293B' }
+  screenWrapper: { flex: 1, backgroundColor: '#FFF' },
+  safeArea: { flex: 1, backgroundColor: '#FFF', paddingTop: StatusBar.currentHeight || 0 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderColor: '#E2E8F0' },
+  headerTitle: { fontSize: 18, fontWeight: '900', marginLeft: 14 }
 });
