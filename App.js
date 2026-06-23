@@ -24,7 +24,7 @@ export default function App() {
 
   const checkActivation = async () => {
     try {
-      const activated = await AsyncStorage.getItem('@is_activated');
+      const activated = await AsyncStorage.getItem('@is_activated');thi
       setInitialRoute(
         activated === 'true' ? 'Dashboard' : 'Activation'
       );
