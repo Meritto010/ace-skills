@@ -91,14 +91,68 @@ export default function SpeakingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 15, backgroundColor: '#0F4C81', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10 },
-  navButton: { flexDirection: 'row', alignItems: 'center' },
-  navText: { color: '#FFF', fontWeight: '800', marginLeft: 8, fontSize: 14 },
-  headerTitle: { color: '#FFF', fontWeight: '900', fontSize: 18 },
-  scrollContent: { paddingBottom: 30 },
-  introSection: { padding: 20 },
-  welcomeText: { color: '#FFF', fontSize: 22, fontWeight: '900' },
-  subText: { color: '#94A3B8', fontSize: 14, fontWeight: '600', marginTop: 6, lineHeight: 20 },
-  proButton: { marginTop: 22, backgroundColor: '#0F4C81', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }
+  container: {
+    flex: 1,
+    backgroundColor: '#0F172A'
+  },
+
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android'
+      ? (StatusBar.currentHeight || 0) + 15
+      : 15,
+    paddingBottom: 15,
+    backgroundColor: '#0F4C81'
+  },
+
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+
+  navText: {
+    color: '#FFF',
+    fontWeight: '800',
+    marginLeft: 8,
+    fontSize: 14
+  },
+
+  headerTitle: {
+    color: '#FFF',
+    fontWeight: '900',
+    fontSize: 18
+  },
+
+  scrollContent: {
+    paddingBottom: 30
+  },
+
+  introSection: {
+    padding: 20
+  },
+
+  welcomeText: {
+    color: '#FFF',
+    fontSize: 22,
+    fontWeight: '900'
+  },
+
+  subText: {
+    color: '#94A3B8',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 6,
+    lineHeight: 20
+  },
+
+  proButton: {
+    marginTop: 22,
+    backgroundColor: '#0F4C81',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12
+  }
 });

@@ -23,7 +23,7 @@ export default function SpeakingWidget({ data }) {
     if (!text) return;
     Speech.stop();
     const cleanText = text.replace('AI: ', '').replace('User: ', '').trim();
-    Speech.speak(cleanText, { language: 'en-US', rate: 0.9, pitch: 1.0 });
+    Speech.speak(cleanText, { language: 'en-IN', rate: 0.9, pitch: 1.0 });
   };
 
   return (

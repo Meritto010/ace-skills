@@ -42,7 +42,7 @@ export default function GrammarWidget({ data }) {
   // Play single topic with FULL content
   const speak = (topic) => {
     Speech.stop();
-    Speech.speak(getFullTopicString(topic), { language: 'en-US', rate: 0.9 });
+    Speech.speak(getFullTopicString(topic), { language: 'en-IN', rate: 0.9 });
   };
 
   // Play all topics with SUMMARY content (Title + Definition only)

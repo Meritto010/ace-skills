@@ -28,7 +28,7 @@ export default function VocabularyWidget() {
     if (!text) return;
     Speech.stop();
     const cleanText = text.replace(/^(AI:|User:|Grammar:)\s*/i, '').trim();
-    Speech.speak(cleanText, { language: 'en-US', rate: 0.9 });
+    Speech.speak(cleanText, { language: 'en-IN', rate: 0.9 });
   };
 
   const categories = useMemo(() => [...new Set(data.map(item => item.category))], [data]);

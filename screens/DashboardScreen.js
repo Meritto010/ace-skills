@@ -65,10 +65,9 @@ export default function DashboardScreen() {
       navigation.navigate(screenName);
     } else {
       Alert.alert('Feature Locked', 'Premium license required.', [
-        { text: 'Cancel', style: 'cancel' },
-        // FIXED: Using navigation.getParent() to reach root navigator
-        { text: 'Activate', onPress: () => navigation.getParent().navigate('Activation') }
-      ]);
+  { text: 'Cancel', style: 'cancel' },
+  { text: 'Activate', onPress: () => navigation.replace('Activation') }
+  ]);
     }
   };
 
@@ -166,25 +165,25 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  scrollContainer: { paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 40 : 20, paddingBottom: 40 },
+  scrollContainer: { paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 50 : 20, paddingBottom: 40 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerActions: { flexDirection: 'row' },
-  brandTitle: { fontSize: 28, fontWeight: '900', color: ACE_BLUE },
+  brandTitle: { fontSize: 26, fontWeight: '800', color: ACE_BLUE },
   brandTagline: { fontSize: 13, color: '#64748B', fontWeight: '700', marginTop: 2 },
-  focusCard: { backgroundColor: '#F0F7FF', padding: 16, borderRadius: 16, marginTop: 24, borderWidth: 1, borderColor: '#D0E4FF' },
+  focusCard: { backgroundColor: '#F0F7FF', padding: 16, borderRadius: 16, marginTop: 28, borderWidth: 1, borderColor: '#D0E4FF' },
   focusLeft: { flexDirection: 'row', alignItems: 'center' },
   focusIconWrap: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' },
   focusLabel: { fontSize: 10, fontWeight: '800', color: '#475569' },
   focusTitle: { fontSize: 15, fontWeight: '800', color: '#0F4C81', marginTop: 2 },
-  sectionBlock: { marginTop: 32 },
+  sectionBlock: { marginTop: 28 },
   sectionLabel: { fontSize: 11, fontWeight: '900', color: '#94A3B8', marginBottom: 14 },
   skillsRow: { flexDirection: 'row', justifyContent: 'space-between' },
   skillCard: { backgroundColor: '#FFFFFF', width: (width - 64) / 3, paddingVertical: 18, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0', elevation: 2 },
   skillIconWrap: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#F0F7FF', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  skillTitle: { fontSize: 12, fontWeight: '800', color: '#1E293B' },
+  skillTitle: { fontSize: 13, fontWeight: '800', color: '#1E293B' },
   lockBadge: { position: 'absolute', top: 8, right: 8, backgroundColor: '#FEF2F2', padding: 3, borderRadius: 6, borderWidth: 0.5, borderColor: '#FCA5A5' },
   horizontalScrollPadding: { paddingRight: 20 },
-  streamCard: { width: 144, height: 154, borderRadius: 16, padding: 14, marginRight: 12, justifyContent: 'space-between', borderWidth: 1, borderColor: '#E2E8F0' },
+  streamCard: { width: 130, height: 145, borderRadius: 16, padding: 14, marginRight: 12, justifyContent: 'space-between', borderWidth: 1, borderColor: '#E2E8F0' },
   streamTitle: { fontSize: 13, fontWeight: '800', color: '#1E293B', marginTop: 10 },
   streamAction: { fontSize: 11, fontWeight: '900', color: ACE_BLUE, marginRight: 4 },
   actionRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
