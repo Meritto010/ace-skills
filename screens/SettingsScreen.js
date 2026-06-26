@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView, Linking, StatusBar, Platform, Dimensions, PixelRatio } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { AuthContext } from '../context/AuthContext';
+import { StackActions } from '@react-navigation/native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const scale = SCREEN_WIDTH / 375;
@@ -20,10 +20,10 @@ const FOCUS_TRACKS = [
 ];
 
 export default function SettingsScreen({ navigation }) {
-  const { isActivated, logout } = useContext(AuthContext);
   const [licenseKey, setLicenseKey] = useState("N/A");
   const [userName, setUserName] = useState("Learner");
   const [selectedTrack, setSelectedTrack] = useState('communication');
+  const [isActivated, setIsActivated] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -34,10 +34,12 @@ export default function SettingsScreen({ navigation }) {
       const name = await AsyncStorage.getItem('@user_name');
       const key = await AsyncStorage.getItem('@activated_license');
       const track = await AsyncStorage.getItem('@user_focus_track');
+      const activated = await AsyncStorage.getItem('@is_activated');
 
       if (name) setUserName(name);
       if (key) setLicenseKey(key);
       if (track) setSelectedTrack(track);
+      setIsActivated(activated === 'true');
     } catch (error) {
       console.error("Failed to load user data", error);
     }
@@ -61,7 +63,8 @@ export default function SettingsScreen({ navigation }) {
           style: "destructive",
           onPress: async () => {
             try {
-              await logout();
+              await AsyncStorage.multiRemove(['@is_activated', '@activated_license', '@user_name', '@user_phone', '@account_type']);
+              navigation.dispatch(StackActions.replace('Activation'));
             } catch (error) {
               Alert.alert("Error", "Failed to deactivate. Please try again.");
             }
@@ -137,13 +140,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     padding: normalize(20), 
-    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight + normalize(10) : normalize(20), // Added extra padding for Android/iOS top
     borderBottomWidth: 1, 
-    borderColor: '#EEE' 
+    borderColor: '#EEE',
+    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 
   },
   backButton: { marginRight: 15 },
   headerTitle: { fontSize: normalize(20), fontWeight: 'bold', color: ACE_BLUE },
-  scrollContent: { paddingHorizontal: normalize(20), paddingTop: normalize(20), paddingBottom: normalize(80) }, // Increased paddingBottom to avoid bottom hitting
+  scrollContent: { padding: normalize(20), paddingBottom: normalize(50) },
   profileBox: { alignItems: 'center', marginBottom: normalize(20) },
   avatarCircle: { width: normalize(70), height: normalize(70), borderRadius: normalize(35), backgroundColor: ACE_BLUE, justifyContent: 'center', alignItems: 'center' },
   avatarText: { color: '#FFF', fontSize: normalize(24), fontWeight: 'bold' },
