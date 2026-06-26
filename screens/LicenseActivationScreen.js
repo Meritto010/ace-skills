@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Device from 'expo-device';
 import { supabase } from '../services/supabase';
 import ActivationInstructionModal from '../components/ActivationInstructionModal';
+import { AuthContext } from '../context/AuthContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const scale = SCREEN_WIDTH / 375;
@@ -33,6 +34,7 @@ export function normalize(size) {
 }
 
 export default function LicenseActivationScreen({ navigation }) {
+  const { login } = useContext(AuthContext);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [licenseKey, setLicenseKey] = useState('');
@@ -95,7 +97,7 @@ export default function LicenseActivationScreen({ navigation }) {
         await AsyncStorage.setItem('@user_phone', phone.trim());
 
         Alert.alert("Success", "Activation Successful!");
-        navigation.reset({ index: 0, routes: [{ name: 'Dashboard' }] });
+        login(); 
       }
     } catch (err) {
       Alert.alert("Error", "Check your internet connection.");

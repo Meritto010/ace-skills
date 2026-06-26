@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, 
   StatusBar, Platform, Alert, Dimensions, ActivityIndicator, Linking
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
 import SupportHubModal from '../components/SupportHubModal';
 import InquiryModal from '../components/InquiryModal';
 
@@ -15,19 +16,13 @@ const STREAM_URL = 'https://raw.githubusercontent.com/Meritto010/media_stream/ma
 
 export default function DashboardScreen() {
   const navigation = useNavigation();
-  const [isPro, setIsPro] = useState(false);
+  const { isActivated } = useContext(AuthContext);
   const [supportVisible, setSupportVisible] = useState(false);
   const [inquiryVisible, setInquiryVisible] = useState(false);
   const [student, setStudent] = useState({ name: '', phone: '', selectedCourse: '' });
   const [focusTrack, setFocusTrack] = useState('Communication Mastery');
   const [streamData, setStreamData] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadLicenseStatus();
-    }, [])
-  );
 
   useEffect(() => {
     loadFocusTrack();
@@ -44,13 +39,6 @@ export default function DashboardScreen() {
     } catch (e) { setFocusTrack('Communication Mastery'); }
   };
 
-  const loadLicenseStatus = async () => {
-    try {
-      const activated = await AsyncStorage.getItem('@is_activated');
-      setIsPro(activated === 'true');
-    } catch (e) { setIsPro(false); }
-  };
-
   const fetchStreams = async () => {
     try {
       const response = await fetch(STREAM_URL);
@@ -61,13 +49,13 @@ export default function DashboardScreen() {
   };
 
   const handleRouteNavigation = (screenName) => {
-    if (isPro) {
+    if (isActivated) {
       navigation.navigate(screenName);
     } else {
       Alert.alert('Feature Locked', 'Premium license required.', [
-  { text: 'Cancel', style: 'cancel' },
-  { text: 'Activate', onPress: () => navigation.replace('Activation') }
-  ]);
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Activate', onPress: () => navigation.getParent().navigate('Activation') }
+      ]);
     }
   };
 
@@ -85,7 +73,7 @@ export default function DashboardScreen() {
     <TouchableOpacity style={styles.skillCard} activeOpacity={0.85} onPress={() => handleRouteNavigation(screen)}>
       <View style={styles.skillIconWrap}><Ionicons name={icon} size={22} color={ACE_BLUE} /></View>
       <Text style={styles.skillTitle}>{title}</Text>
-      {!isPro && <View style={styles.lockBadge}><Ionicons name="lock-closed" size={11} color="#EF4444" /></View>}
+      {!isActivated && <View style={styles.lockBadge}><Ionicons name="lock-closed" size={11} color="#EF4444" /></View>}
     </TouchableOpacity>
   );
 
@@ -93,7 +81,6 @@ export default function DashboardScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.brandTitle}>ACE English</Text>
@@ -165,25 +152,25 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  scrollContainer: { paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 55 : 20, paddingBottom: 40 },
+  scrollContainer: { paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 40 : 20, paddingBottom: 40 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerActions: { flexDirection: 'row' },
-  brandTitle: { fontSize: 26, fontWeight: '800', color: ACE_BLUE },
+  brandTitle: { fontSize: 28, fontWeight: '900', color: ACE_BLUE },
   brandTagline: { fontSize: 13, color: '#64748B', fontWeight: '700', marginTop: 2 },
-  focusCard: { backgroundColor: '#F0F7FF', padding: 16, borderRadius: 16, marginTop: 28, borderWidth: 1, borderColor: '#D0E4FF' },
+  focusCard: { backgroundColor: '#F0F7FF', padding: 16, borderRadius: 16, marginTop: 24, borderWidth: 1, borderColor: '#D0E4FF' },
   focusLeft: { flexDirection: 'row', alignItems: 'center' },
   focusIconWrap: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' },
   focusLabel: { fontSize: 10, fontWeight: '800', color: '#475569' },
   focusTitle: { fontSize: 15, fontWeight: '800', color: '#0F4C81', marginTop: 2 },
-  sectionBlock: { marginTop: 28 },
+  sectionBlock: { marginTop: 32 },
   sectionLabel: { fontSize: 11, fontWeight: '900', color: '#94A3B8', marginBottom: 14 },
   skillsRow: { flexDirection: 'row', justifyContent: 'space-between' },
   skillCard: { backgroundColor: '#FFFFFF', width: (width - 64) / 3, paddingVertical: 18, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0', elevation: 2 },
   skillIconWrap: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#F0F7FF', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  skillTitle: { fontSize: 13, fontWeight: '800', color: '#1E293B' },
+  skillTitle: { fontSize: 12, fontWeight: '800', color: '#1E293B' },
   lockBadge: { position: 'absolute', top: 8, right: 8, backgroundColor: '#FEF2F2', padding: 3, borderRadius: 6, borderWidth: 0.5, borderColor: '#FCA5A5' },
   horizontalScrollPadding: { paddingRight: 20 },
-  streamCard: { width: 130, height: 145, borderRadius: 16, padding: 14, marginRight: 12, justifyContent: 'space-between', borderWidth: 1, borderColor: '#E2E8F0' },
+  streamCard: { width: 144, height: 154, borderRadius: 16, padding: 14, marginRight: 12, justifyContent: 'space-between', borderWidth: 1, borderColor: '#E2E8F0' },
   streamTitle: { fontSize: 13, fontWeight: '800', color: '#1E293B', marginTop: 10 },
   streamAction: { fontSize: 11, fontWeight: '900', color: ACE_BLUE, marginRight: 4 },
   actionRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },

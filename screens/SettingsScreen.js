@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView, Linking, StatusBar, Platform, Dimensions, PixelRatio } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { CommonActions } from '@react-navigation/native'; // Added import for robust navigation reset
+import { AuthContext } from '../context/AuthContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const scale = SCREEN_WIDTH / 375;
@@ -20,6 +20,7 @@ const FOCUS_TRACKS = [
 ];
 
 export default function SettingsScreen({ navigation }) {
+  const { isActivated, logout } = useContext(AuthContext);
   const [licenseKey, setLicenseKey] = useState("N/A");
   const [userName, setUserName] = useState("Learner");
   const [selectedTrack, setSelectedTrack] = useState('communication');
@@ -29,13 +30,17 @@ export default function SettingsScreen({ navigation }) {
   }, []);
 
   const loadUserData = async () => {
-    const name = await AsyncStorage.getItem('@user_name');
-    const key = await AsyncStorage.getItem('@activated_license');
-    const track = await AsyncStorage.getItem('@user_focus_track');
+    try {
+      const name = await AsyncStorage.getItem('@user_name');
+      const key = await AsyncStorage.getItem('@activated_license');
+      const track = await AsyncStorage.getItem('@user_focus_track');
 
-    if (name) setUserName(name);
-    if (key) setLicenseKey(key);
-    if (track) setSelectedTrack(track);
+      if (name) setUserName(name);
+      if (key) setLicenseKey(key);
+      if (track) setSelectedTrack(track);
+    } catch (error) {
+      console.error("Failed to load user data", error);
+    }
   };
 
   const handleSupport = (type) => {
@@ -55,14 +60,11 @@ export default function SettingsScreen({ navigation }) {
           text: "Deactivate",
           style: "destructive",
           onPress: async () => {
-            await AsyncStorage.multiRemove(['@is_activated', '@activated_license', '@user_name', '@user_phone', '@account_type']);
-            // Robust reset for cross-platform (native & web)
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Activation' }],
-              })
-            );
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert("Error", "Failed to deactivate. Please try again.");
+            }
           },
         },
       ]
@@ -76,7 +78,7 @@ export default function SettingsScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={ACE_BLUE} />
@@ -93,9 +95,11 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles.card}>
           <Text style={styles.sectionHeading}>LICENSE DETAILS</Text>
           <Text style={styles.label}>KEY: {licenseKey}</Text>
-          <TouchableOpacity style={styles.deactivateBtn} onPress={handleDeactivate}>
-            <Text style={styles.btnText}>Deactivate Device</Text>
-          </TouchableOpacity>
+          {isActivated && (
+            <TouchableOpacity style={styles.deactivateBtn} onPress={handleDeactivate}>
+              <Text style={styles.btnText}>Deactivate Device</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.card}>
@@ -129,10 +133,17 @@ export default function SettingsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  headerRow: { flexDirection: 'row', alignItems: 'center', padding: normalize(20), borderBottomWidth: 1, borderColor: '#EEE' },
+  headerRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    padding: normalize(20), 
+    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight + normalize(10) : normalize(20), // Added extra padding for Android/iOS top
+    borderBottomWidth: 1, 
+    borderColor: '#EEE' 
+  },
   backButton: { marginRight: 15 },
   headerTitle: { fontSize: normalize(20), fontWeight: 'bold', color: ACE_BLUE },
-  scrollContent: { padding: normalize(20), paddingBottom: normalize(50) },
+  scrollContent: { paddingHorizontal: normalize(20), paddingTop: normalize(20), paddingBottom: normalize(80) }, // Increased paddingBottom to avoid bottom hitting
   profileBox: { alignItems: 'center', marginBottom: normalize(20) },
   avatarCircle: { width: normalize(70), height: normalize(70), borderRadius: normalize(35), backgroundColor: ACE_BLUE, justifyContent: 'center', alignItems: 'center' },
   avatarText: { color: '#FFF', fontSize: normalize(24), fontWeight: 'bold' },
@@ -140,7 +151,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#F8F9FA', padding: normalize(16), borderRadius: 12, marginBottom: normalize(16), borderWidth: 1, borderColor: '#E8EAED' },
   sectionHeading: { fontSize: normalize(11), fontWeight: '800', color: '#5F6368', marginBottom: 10 },
   label: { fontSize: normalize(14), fontWeight: '600', color: '#202124', marginBottom: 10 },
-  deactivateBtn: { backgroundColor: '#EA4335', padding: normalize(10), borderRadius: 8, alignItems: 'center' },
+  deactivateBtn: { backgroundColor: '#EA4335', padding: normalize(10), borderRadius: 8, alignItems: 'center', marginTop: 5 },
   btnText: { color: '#FFF', fontWeight: 'bold' },
   pillScrollContainer: { paddingRight: 20 },
   pill: { flexDirection: 'row', alignItems: 'center', paddingVertical: normalize(10), paddingHorizontal: normalize(16), borderRadius: 20, backgroundColor: '#E8EAED', marginRight: 10 },
