@@ -165,7 +165,7 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  scrollContainer: { paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 50 : 20, paddingBottom: 40 },
+  scrollContainer: { paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 55 : 20, paddingBottom: 40 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerActions: { flexDirection: 'row' },
   brandTitle: { fontSize: 26, fontWeight: '800', color: ACE_BLUE },

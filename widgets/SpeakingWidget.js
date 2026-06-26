@@ -23,7 +23,7 @@ export default function SpeakingWidget({ data }) {
     if (!text) return;
     Speech.stop();
     const cleanText = text.replace('AI: ', '').replace('User: ', '').trim();
-    Speech.speak(cleanText, { language: 'en-IN', rate: 0.9, pitch: 1.0 });
+    Speech.speak(cleanText, { language: 'en-IN', rate: 0.9, pitch: 0.95 });
   };
 
   return (
@@ -36,7 +36,7 @@ export default function SpeakingWidget({ data }) {
       <Modal visible={visible} animationType="slide" transparent={false}>
         <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setVisible(false)}><Text style={{fontWeight:'700'}}>Close</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setVisible(false)}><Text style={{fontWeight:'700', color: '#1E293B'}}>Close</Text></TouchableOpacity>
             <Text style={styles.modalTitle}>Speaking Lab</Text>
             <View style={{width: 40}} />
           </View>
@@ -45,7 +45,7 @@ export default function SpeakingWidget({ data }) {
             <View style={styles.levelSelector}>
               {levels.map((lvl) => (
                 <TouchableOpacity key={lvl} style={[styles.lvlPill, level === lvl && styles.lvlPillActive]} onPress={() => {setLevel(lvl); setExpandedId(null);}}>
-                  <Text style={level === lvl ? {color: '#FFF'} : {color: '#64748B'}}>{lvl}</Text>
+                  <Text style={level === lvl ? {color: '#FFF', fontWeight: '700'} : {color: '#64748B'}}>{lvl}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -69,14 +69,8 @@ export default function SpeakingWidget({ data }) {
                     {item.dialogue.map((line, idx) => {
                       const isAi = line.startsWith('AI:');
                       return (
-                        <TouchableOpacity 
-                          key={idx} 
-                          style={[isAi ? styles.rowAi : styles.chatBubbleUser]} 
-                          onPress={() => speakLine(line)}
-                        >
-                          <Text style={isAi ? styles.aiText : styles.userText}>
-                            {line.replace('AI: ', '').replace('User: ', '')}
-                          </Text>
+                        <TouchableOpacity key={idx} style={[isAi ? styles.rowAi : styles.chatBubbleUser]} onPress={() => speakLine(line)}>
+                          <Text style={isAi ? styles.aiText : styles.userText}>{line.replace('AI: ', '').replace('User: ', '')}</Text>
                         </TouchableOpacity>
                       );
                     })}
@@ -95,8 +89,8 @@ const styles = StyleSheet.create({
   widgetContainer: { paddingHorizontal: 20 },
   mainStartBtn: { backgroundColor: '#0F4C81', padding: 16, borderRadius: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   mainStartBtnText: { color: '#FFF', fontWeight: '800', marginLeft: 8 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center', borderBottomWidth: 1, borderColor: '#E2E8F0' },
-  modalTitle: { fontSize: 16, fontWeight: '900' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center', borderBottomWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFF' },
+  modalTitle: { fontSize: 16, fontWeight: '900', color: '#1E293B' },
   modalScroll: { padding: 20 },
   levelSelector: { flexDirection: 'row', marginBottom: 20 },
   lvlPill: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, backgroundColor: '#F1F5F9', marginRight: 10 },
