@@ -89,9 +89,7 @@ export default function LicenseActivationScreen({ navigation }) {
       } else {
         await AsyncStorage.setItem('@user_name', name.trim());
         await AsyncStorage.setItem('@user_phone', phone.trim());
-
         Alert.alert("Success", "Activation Successful!");
-        // FIX: Pass the license key to login() so context updates isActivated to true
         login(licenseKey.trim()); 
       }
     } catch (err) {
@@ -145,6 +143,11 @@ export default function LicenseActivationScreen({ navigation }) {
                 </>
               )}
             </TouchableOpacity>
+
+            {/* Restored Explore Free Access Button */}
+            <TouchableOpacity disabled={loading} style={styles.btnSkip} onPress={() => navigation.replace('Dashboard')}>
+              <Text style={styles.skipText}>Explore Free Access</Text>
+            </TouchableOpacity>
             
             <View style={styles.supportSection}>
               <Text style={styles.supportHeading}>GET SUPPORT</Text>
@@ -180,6 +183,8 @@ const styles = StyleSheet.create({
   linkText: { fontSize: normalize(12), color: ACE_BLUE, fontWeight: '800', textDecorationLine: 'underline' },
   btnActivate: { backgroundColor: ACE_BLUE, height: normalize(54), borderRadius: normalize(14), justifyContent: 'center', alignItems: 'center', flexDirection: 'row', elevation: 2, shadowColor: ACE_BLUE, shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 5 },
   btnText: { color: '#FFFFFF', fontSize: normalize(15), fontWeight: '900' },
+  btnSkip: { marginTop: normalize(18), alignItems: 'center', paddingVertical: normalize(6) },
+  skipText: { color: ACE_BLUE, fontSize: normalize(13), fontWeight: '800', textDecorationLine: 'underline' },
   supportSection: { marginTop: normalize(24), alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: normalize(18), marginBottom: normalize(10) },
   supportHeading: { fontSize: normalize(10), fontWeight: '800', color: '#94A3B8', marginBottom: normalize(10), letterSpacing: 0.8 },
   supportRowPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#DCFCE7', paddingHorizontal: normalize(16), paddingVertical: normalize(12), borderRadius: normalize(14), borderWidth: 1, borderColor: '#86EFAC', width: '100%', justifyContent: 'center' },

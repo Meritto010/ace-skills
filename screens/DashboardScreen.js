@@ -52,9 +52,9 @@ export default function DashboardScreen() {
     if (isActivated) {
       navigation.navigate(screenName);
     } else {
-      Alert.alert('Feature Locked', 'Premium license required.', [
+      Alert.alert('Feature Locked', 'Premium license required to access this feature.', [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Activate', onPress: () => navigation.getParent().navigate('Activation') }
+        { text: 'Activate', onPress: () => navigation.navigate('Activation') }
       ]);
     }
   };

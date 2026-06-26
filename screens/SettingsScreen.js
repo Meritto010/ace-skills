@@ -62,6 +62,11 @@ export default function SettingsScreen({ navigation }) {
           onPress: async () => {
             try {
               await logout();
+              // Fix: Explicitly reset navigation stack to return to Activation screen
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Activation' }],
+              });
             } catch (error) {
               Alert.alert("Error", "Failed to deactivate. Please try again.");
             }
@@ -137,13 +142,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     padding: normalize(20), 
-    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight + normalize(10) : normalize(20), // Added extra padding for Android/iOS top
+    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight + normalize(10) : normalize(20),
     borderBottomWidth: 1, 
     borderColor: '#EEE' 
   },
   backButton: { marginRight: 15 },
   headerTitle: { fontSize: normalize(20), fontWeight: 'bold', color: ACE_BLUE },
-  scrollContent: { paddingHorizontal: normalize(20), paddingTop: normalize(20), paddingBottom: normalize(80) }, // Increased paddingBottom to avoid bottom hitting
+  scrollContent: { paddingHorizontal: normalize(20), paddingTop: normalize(20), paddingBottom: normalize(80) },
   profileBox: { alignItems: 'center', marginBottom: normalize(20) },
   avatarCircle: { width: normalize(70), height: normalize(70), borderRadius: normalize(35), backgroundColor: ACE_BLUE, justifyContent: 'center', alignItems: 'center' },
   avatarText: { color: '#FFF', fontSize: normalize(24), fontWeight: 'bold' },

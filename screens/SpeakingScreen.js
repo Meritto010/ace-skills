@@ -44,7 +44,7 @@ export default function SpeakingScreen() {
     return (
       <View style={styles.centerBox}>
         <Ionicons name="lock-closed" size={50} color="#0F4C81" />
-        <Text style={styles.lockedText}>Feature Locked </Text>
+        <Text style={styles.lockedText}>Feature Locked</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Activation')} style={styles.proButton}>
           <Text style={{ color: '#FFF', fontWeight: '800' }}>Activate Premium</Text>
         </TouchableOpacity>
@@ -79,8 +79,25 @@ export default function SpeakingScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
-  centerBox: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 15, backgroundColor: '#FFF', borderBottomWidth: 1, borderColor: '#E2E8F0', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10 },
+  // Fixed padding issue for both states
+  centerBox: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: '#FFF',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0 
+  },
+  header: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    paddingHorizontal: 20, 
+    paddingBottom: 15, 
+    backgroundColor: '#FFF', 
+    borderBottomWidth: 1, 
+    borderColor: '#E2E8F0', 
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 10 : 20 
+  },
   navButton: { flexDirection: 'row', alignItems: 'center' },
   navText: { color: '#1E293B', fontWeight: '800', marginLeft: 8, fontSize: 14 },
   headerTitle: { color: '#1E293B', fontWeight: '900', fontSize: 18 },
