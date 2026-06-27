@@ -1,50 +1,241 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const AuthContext = createContext();
+import STORAGE_KEYS from '../constants/storageKeys';
+
+export const AuthContext = createContext(null);
+
+export const useAuth = () => useContext(AuthContext);
+
+const DEFAULT_ACTIVATION_INFO = {
+  isActivated: false,
+  licenseKey: '',
+  fullName: '',
+  mobile: '',
+  activatedOn: null,
+};
 
 export const AuthProvider = ({ children }) => {
-  const [isActivated, setIsActivated] = useState(false);
+
+  const [activationInfo, setActivationInfo] = useState(
+    DEFAULT_ACTIVATION_INFO
+  );
+
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    checkActivationStatus();
+  /**
+   * Load activation data from AsyncStorage
+   */
+  const refreshActivation = useCallback(async () => {
+
+    try {
+
+      const stored = await AsyncStorage.getItem(
+        STORAGE_KEYS.ACTIVATION_INFO
+      );
+
+      if (stored) {
+
+        const parsed = JSON.parse(stored);
+
+        setActivationInfo({
+          ...DEFAULT_ACTIVATION_INFO,
+          ...parsed,
+        });
+
+      } else {
+
+        setActivationInfo(DEFAULT_ACTIVATION_INFO);
+
+      }
+
+    } catch (error) {
+
+      console.log('AuthContext Load Error:', error);
+
+      setActivationInfo(DEFAULT_ACTIVATION_INFO);
+
+    } finally {
+
+      setIsLoading(false);
+
+    }
+
   }, []);
 
-  const checkActivationStatus = async () => {
+  useEffect(() => {
+    refreshActivation();
+  }, [refreshActivation]);
+
+  /**
+   * Activate License
+   */
+  const activateLicense = async ({
+    licenseKey,
+    fullName,
+    mobile,
+  }) => {
+
     try {
-      const status = await AsyncStorage.getItem('@is_activated');
-      setIsActivated(status === 'true');
+
+      const info = {
+
+        isActivated: true,
+
+        licenseKey,
+
+        fullName,
+
+        mobile,
+
+        activatedOn: new Date().toISOString(),
+
+      };
+
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.ACTIVATION_INFO,
+        JSON.stringify(info)
+      );
+
+      setActivationInfo(info);
+
+      return {
+        success: true,
+      };
+
     } catch (error) {
-      console.error("Error checking activation status", error);
-    } finally {
-      setIsLoading(false);
+
+      console.log('Activation Error:', error);
+
+      return {
+
+        success: false,
+
+        message: 'Unable to save activation.',
+
+      };
+
     }
+
   };
 
-  const login = async (licenseKey) => {
+  /**
+   * Deactivate License
+   */
+  const deactivateLicense = async () => {
+
     try {
-      await AsyncStorage.setItem('@is_activated', 'true');
-      await AsyncStorage.setItem('@activated_license', licenseKey);
-      setIsActivated(true);
+
+      await AsyncStorage.removeItem(
+        STORAGE_KEYS.ACTIVATION_INFO
+      );
+
+      setActivationInfo(
+        DEFAULT_ACTIVATION_INFO
+      );
+
+      return {
+
+        success: true,
+
+      };
+
     } catch (error) {
-      console.error("Error during login", error);
+
+      console.log('Deactivate Error:', error);
+
+      return {
+
+        success: false,
+
+        message: 'Unable to deactivate.',
+
+      };
+
     }
+
   };
 
-  const logout = async () => {
+  /**
+   * Update Activation Information
+   * (Future-proof if you ever allow editing
+   * name or mobile.)
+   */
+  const updateActivation = async (updates) => {
+
     try {
-      await AsyncStorage.removeItem('@is_activated');
-      await AsyncStorage.removeItem('@activated_license');
-      setIsActivated(false);
+
+      const updated = {
+
+        ...activationInfo,
+
+        ...updates,
+
+      };
+
+      await AsyncStorage.setItem(
+
+        STORAGE_KEYS.ACTIVATION_INFO,
+
+        JSON.stringify(updated)
+
+      );
+
+      setActivationInfo(updated);
+
+      return {
+
+        success: true,
+
+      };
+
     } catch (error) {
-      console.error("Error during logout", error);
+
+      console.log(error);
+
+      return {
+
+        success: false,
+
+      };
+
     }
+
+  };
+
+  const value = {
+
+    isLoading,
+
+    isActivated: activationInfo.isActivated,
+
+    activationInfo,
+
+    activateLicense,
+
+    deactivateLicense,
+
+    refreshActivation,
+
+    updateActivation,
+
   };
 
   return (
-    <AuthContext.Provider value={{ isActivated, login, logout, isLoading }}>
+
+    <AuthContext.Provider value={value}>
+
       {children}
+
     </AuthContext.Provider>
+
   );
+
 };
