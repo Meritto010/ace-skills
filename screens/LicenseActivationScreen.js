@@ -33,7 +33,6 @@ export function normalize(size) {
 }
 
 export default function LicenseActivationScreen({ navigation }) {
-  // Use useContext correctly here
   const { login } = useContext(AuthContext);
   
   const [name, setName] = useState('');
@@ -84,13 +83,18 @@ export default function LicenseActivationScreen({ navigation }) {
         p_phone: phone.trim()
       });
 
-      if (error || !data || !data[0]?.success) {
-        Alert.alert("Activation Failed", data?.[0]?.message || "Something went wrong.");
+      // Check if success is true, whether data is an object or an array
+      const isSuccess = data?.success || (Array.isArray(data) && data[0]?.success);
+      const message = data?.message || (Array.isArray(data) && data[0]?.message) || "Something went wrong.";
+
+      if (error || !isSuccess) {
+        Alert.alert("Activation Failed", message);
       } else {
         await AsyncStorage.setItem('@user_name', name.trim());
         await AsyncStorage.setItem('@user_phone', phone.trim());
         Alert.alert("Success", "Activation Successful!");
-        login(licenseKey.trim()); 
+        login(licenseKey.trim());
+        navigation.replace('Dashboard');
       }
     } catch (err) {
       Alert.alert("Error", "Check your internet connection.");

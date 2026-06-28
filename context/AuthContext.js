@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem('@is_activated', 'true');
       await AsyncStorage.setItem('@activated_license', licenseKey);
+      // Explicitly setting the state to true triggers the re-render in App.js
       setIsActivated(true);
     } catch (error) {
       console.error("Error during login", error);
@@ -43,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isActivated, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ isActivated, login, logout, loading: isLoading }}>
       {children}
     </AuthContext.Provider>
   );
