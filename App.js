@@ -4,7 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 
-// Importing all your screens
 import DashboardScreen from './screens/DashboardScreen';
 import GrammarScreen from './screens/GrammarScreen';
 import LegalScreen from './screens/LegalScreen';
@@ -42,18 +41,16 @@ function AppNavigator() {
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Stack.Navigator
+        initialRouteName={isActivated ? "Dashboard" : "Activation"}
         screenOptions={{
           headerShown: false,
           gestureEnabled: false,
           cardStyle: { backgroundColor: '#FFFFFF' },
         }}
       >
-        {isActivated ? (
-          <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        ) : (
-          <Stack.Screen name="Activation" component={LicenseActivationScreen} />
-        )}
-        {/* All screens included */}
+        {/* All screens must be defined here so the navigator knows they exist */}
+        <Stack.Screen name="Activation" component={LicenseActivationScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="Grammar" component={GrammarScreen} />
         <Stack.Screen name="Legal" component={LegalScreen} />
         <Stack.Screen name="PdfReader" component={PdfReaderScreen} />
