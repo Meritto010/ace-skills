@@ -1,60 +1,39 @@
-import React, { useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, SafeAreaView, View, Platform, StatusBar } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import ViewerScreen from '../layouts/ViewerScreen';
-
-const ACE_BLUE = '#0F4C81';
-
-export default function WebScreen({ navigation, route }) {
-
-  const {
-    url,
-    title = 'Web View',
-  } = route.params;
-
-  const [loading, setLoading] = useState(true);
+export default function WebScreen({ route }) {
+  const { url } = route.params;
 
   return (
-    <ViewerScreen
-      navigation={navigation}
-      title={title}
-      contentStyle={styles.content}
-    >
-      <View style={styles.container}>
-
+    <SafeAreaView style={styles.container}>
+      <View style={styles.webViewContainer}>
         <WebView
           source={{ uri: url }}
-          onLoadEnd={() => setLoading(false)}
+          style={styles.webview}
         />
-
-        {loading && (
-          <View style={styles.loader}>
-            <ActivityIndicator size="large" color={ACE_BLUE} />
-          </View>
-        )}
-
       </View>
-    </ViewerScreen>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-
-  content: {
-    flex: 1,
-    padding: 0,
-  },
-
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF'
   },
 
-  loader: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+  webViewContainer: {
+    flex: 1,
     backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+    paddingTop: Platform.OS === 'android'
+      ? (StatusBar.currentHeight || 0) + 10
+      : 10
   },
 
+  webview: {
+    flex: 1
+  }
 });

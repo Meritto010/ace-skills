@@ -20,7 +20,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as Device from 'expo-device';
 import { supabase } from '../services/supabase';
-import ActivationInstructionModal from '../components/ActivationInstructionModal';
 import { AuthContext } from '../context/AuthContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -34,13 +33,14 @@ export function normalize(size) {
 }
 
 export default function LicenseActivationScreen({ navigation }) {
+  // Use useContext correctly here
   const { login } = useContext(AuthContext);
+  
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [licenseKey, setLicenseKey] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
 
   const PRIVACY_URL = 'https://gist.githubusercontent.com/Meritto010/106fe9eed279743481b47dd0dc548bfe/raw/024f52e035c0860b37473e5bc7e32606023a1ea6/privacy-policy.md';
   const TERMS_URL = 'https://gist.githubusercontent.com/Meritto010/8f44e03d9d4d8c5eb0033d2e12f50900/raw/c71e80fab781e7336b62284beb13d8870bb99b2c/terms-of-service.md';
@@ -108,10 +108,6 @@ export default function LicenseActivationScreen({ navigation }) {
             <View style={styles.logoBadge}><Ionicons name="shield-checkmark" size={normalize(26)} color="#FFF" /></View>
             <Text style={styles.brandTitle}>ACE English</Text>
             <Text style={styles.tagline}>Mastery Centre</Text>
-            <TouchableOpacity style={styles.instructionsPill} onPress={() => setShowInstructions(true)} activeOpacity={0.85}>
-              <Ionicons name="information-circle-outline" size={normalize(16)} color={ACE_BLUE} />
-              <Text style={styles.instructionsText}>Activation Instructions</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.form}>
@@ -121,7 +117,6 @@ export default function LicenseActivationScreen({ navigation }) {
             <TextInput style={styles.input} placeholder="Enter mobile number" keyboardType="phone-pad" placeholderTextColor="#94A3B8" value={phone} editable={!loading} onChangeText={setPhone} />
             <View style={styles.labelRow}>
               <Text style={styles.label}>LICENSE KEY</Text>
-              <TouchableOpacity onPress={() => setShowInstructions(true)} activeOpacity={0.7}><Ionicons name="information-circle-outline" size={normalize(18)} color="#64748B" /></TouchableOpacity>
             </View>
             <TextInput style={styles.input} placeholder="ASK-XXXX-XXXX" placeholderTextColor="#94A3B8" value={licenseKey} editable={!loading} maxLength={13} autoCapitalize="characters" onChangeText={handleKeyFormatter} />
 
@@ -144,7 +139,6 @@ export default function LicenseActivationScreen({ navigation }) {
               )}
             </TouchableOpacity>
 
-            {/* Restored Explore Free Access Button */}
             <TouchableOpacity disabled={loading} style={styles.btnSkip} onPress={() => navigation.replace('Dashboard')}>
               <Text style={styles.skipText}>Explore Free Access</Text>
             </TouchableOpacity>
@@ -157,7 +151,6 @@ export default function LicenseActivationScreen({ navigation }) {
               </TouchableOpacity>
             </View>
           </View>
-          <ActivationInstructionModal visible={showInstructions} onClose={() => setShowInstructions(false)} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -171,8 +164,6 @@ const styles = StyleSheet.create({
   logoBadge: { width: normalize(56), height: normalize(56), borderRadius: normalize(28), backgroundColor: ACE_BLUE, justifyContent: 'center', alignItems: 'center', elevation: 4, marginBottom: normalize(10) },
   brandTitle: { fontSize: normalize(26), fontWeight: '900', color: ACE_BLUE, letterSpacing: 1.5 },
   tagline: { fontSize: normalize(13), color: '#475569', fontWeight: '700', marginTop: normalize(4) },
-  instructionsPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#DBEAFE', paddingHorizontal: normalize(16), paddingVertical: normalize(10), borderRadius: normalize(22), marginTop: normalize(12) },
-  instructionsText: { marginLeft: normalize(6), color: ACE_BLUE, fontWeight: '800', fontSize: normalize(12) },
   form: { paddingHorizontal: normalize(24) },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: normalize(6) },
   label: { fontSize: normalize(11), fontWeight: '800', color: '#475569', letterSpacing: 0.5 },

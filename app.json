@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ace-skills-web-view",
-    "slug": "snack-d32528ec-b5a4-430b-87ba-2cff0b6c6573",
+    "name": "ACE English",
+    "slug": "snack-c6d5626d-9fb5-4945-ba0d-2fe22ec3f766",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,16 +20,10 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "package": "com.cbi.snack8c95f0f6f0c944198a5c2e6d78a77264"
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "088b266d-78d2-46c5-ad8f-ce88a4afb997"
-      }
     }
   }
 }

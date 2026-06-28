@@ -1,104 +1,40 @@
-import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
+import React from 'react';
+import { StyleSheet, SafeAreaView, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 
-import Pdf from 'react-native-pdf';
-
-import ViewerScreen from '../layouts/ViewerScreen';
-
-const ACE_BLUE = '#0F4C81';
-
-export default function PdfReaderScreen({
-  navigation,
-  route,
-}) {
-  const {
-    url,
-    title = 'PDF Viewer',
-  } = route.params;
-
-  const [loading, setLoading] = useState(true);
-
-  const [loadError, setLoadError] = useState(false);
+export default function PdfReaderScreen({ route }) {
+  // Ensure you are passing 'url' when navigating to this screen
+  const { url } = route.params;
 
   return (
-    <ViewerScreen
-      navigation={navigation}
-      title={title}
-      contentStyle={styles.content}
-    >
-      <View style={styles.container}>
-        <Pdf
-          source={{
-            uri: url,
-            cache: true,
-          }}
-          style={styles.pdf}
-          trustAllCerts={false}
-          onLoadComplete={() => {
-            setLoading(false);
-            setLoadError(false);
-          }}
-          onError={(error) => {
-            console.log('PDF Error:', error);
-            setLoading(false);
-            setLoadError(true);
-          }}
+    <SafeAreaView style={styles.container}>
+      <View style={styles.webViewContainer}>
+        <WebView 
+          source={{ uri: url }} 
+          style={styles.webview}
+          // The following props improve PDF handling in WebView
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          startInLoadingState={true}
         />
-
-        {loading && (
-          <View style={styles.loader}>
-            <ActivityIndicator
-              size="large"
-              color={ACE_BLUE}
-            />
-          </View>
-        )}
-
-        {loadError && (
-          <View style={styles.errorOverlay}>
-            <ActivityIndicator
-              size="small"
-              color={ACE_BLUE}
-            />
-          </View>
-        )}
       </View>
-    </ViewerScreen>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  container: { 
+    flex: 1, 
+    backgroundColor: '#FFFFFF' 
+  },
+  webViewContainer: { 
+    flex: 1, 
+    padding: 10, 
+    backgroundColor: '#FFFFFF' 
+  },
+  webview: { 
     flex: 1,
-    padding: 0,
-  },
-
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-
-  pdf: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-  },
-
-  loader: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-
-  errorOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
+    borderRadius: 12, 
+    overflow: 'hidden' 
+  }
 });
